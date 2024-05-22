@@ -1,6 +1,7 @@
 from .ResNetA import ResNetA
 from .plainNet import plainNet
 from .sub_CNN import sub_CNN
+from .KAN import KAN
 
 def build_model(model_name,config,groups,num_filters):
     if model_name =='resnet':
