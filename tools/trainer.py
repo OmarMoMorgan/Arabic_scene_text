@@ -68,9 +68,9 @@ def validate_epoch(model, train_dataloader, optimizer, device , tokenizer_):
             # forward + backward + optimize
             outputs = model(**batch)
             loss = outputs.loss
-            loss.backward()
-            optimizer.step()
-            optimizer.zero_grad()
+            # loss.backward()
+            # optimizer.step()
+            #optimizer.zero_grad()
 
             train_loss += loss.item()
 
