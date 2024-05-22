@@ -16,4 +16,4 @@ def replace_specific_layers(module, layer_names, in_features, out_features,NewMo
         if name in layer_names and isinstance(child, nn.Linear):
             setattr(module, name, NewModule(in_features, out_features))
         else:
-            replace_specific_layers(child, layer_names, in_features, out_features)
+            replace_specific_layers(child, layer_names, in_features, out_features,NewModule)
