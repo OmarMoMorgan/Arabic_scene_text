@@ -1,1 +1,1 @@
-# This is the main data modesl mainly cnn cerdits to Ahmed Tarek
+# An arabic scene text recogntion based on vision transformer arch
