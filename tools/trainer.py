@@ -44,7 +44,8 @@ def train_epoch(model, train_dataloader, optimizer, device , tokenizer_):
           #acc.append(((pred.argmax(axis = 1) == labels).type(torch.float)).mean().item())
           #if i % 100 == 0: print(f"Loss: {loss.item()}") 
           with torch.no_grad():
-              cer = compute_cer(pred_ids=outputs, label_ids=batch["labels"] , tokenizer= tokenizer_)
+              outputs_new = model.generate(batch["pixel_values"].to(device))
+              cer = compute_cer(pred_ids=outputs_new, label_ids=batch["labels"] , tokenizer= tokenizer_)
               #valid_cer += cer
               cer_hist.append(cer)
 
@@ -75,7 +76,8 @@ def validate_epoch(model, train_dataloader, optimizer, device , tokenizer_):
 
             # acc calculations
             lss_history.append(loss.item())
-            cer = compute_cer(pred_ids=outputs, label_ids=batch["labels"], tokenizer= tokenizer_)
+            outputs_new = model.generate(batch["pixel_values"].to(device))
+            cer = compute_cer(pred_ids=outputs_new, label_ids=batch["labels"], tokenizer= tokenizer_)
             cer_hist.append(cer)
             #acc.append(((pred.argmax(axis = 1) == labels).type(torch.float)).mean().item())
             #if i % 100 == 0: print(f"Loss: {loss.item()}") 
