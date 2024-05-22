@@ -5,11 +5,11 @@ import torch
 from datasets import load_metric
 cer_metric = load_metric("cer")
 from tokenizers import Tokenizer
-tokenizer = processor.tokenizer
+#tokenizer = processor.tokenizer
 from tqdm.notebook import tqdm
 
 #tokenizer.convert_tokens_to_ids
-def compute_cer(pred_ids, label_ids):
+def compute_cer(pred_ids, label_ids , tokenizer):
     pred_str = tokenizer.batch_decode(pred_ids.tolist(), skip_special_tokens=True)
     label_ids[label_ids == -100] = tokenizer.convert_tokens_to_ids("[PAD]")
     label_str = tokenizer.batch_decode(label_ids.tolist(), skip_special_tokens=True)
@@ -18,7 +18,7 @@ def compute_cer(pred_ids, label_ids):
     return cer
 
 
-def train_epoch(model, train_dataloader, optimizer, device):
+def train_epoch(model, train_dataloader, optimizer, device , tokenizer_):
     # train
        model.train()
        train_loss = 0.0
@@ -44,7 +44,7 @@ def train_epoch(model, train_dataloader, optimizer, device):
           #acc.append(((pred.argmax(axis = 1) == labels).type(torch.float)).mean().item())
           #if i % 100 == 0: print(f"Loss: {loss.item()}") 
           with torch.no_grad():
-              cer = compute_cer(pred_ids=outputs, label_ids=batch["labels"])
+              cer = compute_cer(pred_ids=outputs, label_ids=batch["labels"] , tokenizer_= tokenizer_)
               #valid_cer += cer
               cer_hist.append(cer)
 
@@ -53,7 +53,7 @@ def train_epoch(model, train_dataloader, optimizer, device):
        return np.mean(lss_history) , np.mean(cer_hist)
 
 
-def validate_epoch(model, train_dataloader, optimizer, device):
+def validate_epoch(model, train_dataloader, optimizer, device , tokenizer_):
     model.eval()
     train_loss = 0.0
     cer_hist = []
@@ -75,7 +75,7 @@ def validate_epoch(model, train_dataloader, optimizer, device):
 
             # acc calculations
             lss_history.append(loss.item())
-            cer = compute_cer(pred_ids=outputs, label_ids=batch["labels"])
+            cer = compute_cer(pred_ids=outputs, label_ids=batch["labels"], tokenizer_ = tokenizer_)
             cer_hist.append(cer)
             #acc.append(((pred.argmax(axis = 1) == labels).type(torch.float)).mean().item())
             #if i % 100 == 0: print(f"Loss: {loss.item()}") 
@@ -126,7 +126,7 @@ def validate_epoch_old(model,dataloader,loss,device):
 
 
 def tune_model(num_epochs,model,train_dataloader_,test_dataloader_,\
-               optimizer,device,scheduler=None,earlystopping=None) :
+               optimizer,device, tokenizer_ ,scheduler=None,earlystopping=None ) :
     '''
     NOTE that the scheduler here takes the update after every epoch not step
     '''
@@ -139,8 +139,8 @@ def tune_model(num_epochs,model,train_dataloader_,test_dataloader_,\
     last_lr = optimizer.state_dict()['param_groups'][0]['lr']
     f= 0
     for e in range(num_epochs):
-        lss,acc= train_epoch(model, train_dataloader_, optimizer, device)
-        test_lss,test_acc= validate_epoch(model, test_dataloader_, optimizer, device)
+        lss,acc= train_epoch(model, train_dataloader_, optimizer, device , tokenizer_)
+        test_lss,test_acc= validate_epoch(model, test_dataloader_, optimizer, device , tokenizer_)
 
 
         if (e + 1) % 5==0:
